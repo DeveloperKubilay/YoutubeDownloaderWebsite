@@ -29,13 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const youtubeUrl = youtubeUrlInput.value.trim();
         
         if (!youtubeUrl) {
-            showNotification('error', 'Lütfen bir YouTube URL\'si girin.');
+            showNotification('error', 'Please enter a YouTube URL.');
             animateInput(youtubeUrlInput);
             return;
         }
 
         if (!isValidYouTubeUrl(youtubeUrl)) {
-            showNotification('error', 'Geçersiz YouTube URL\'si. Lütfen doğru bir URL girin.');
+            showNotification('error', 'Invalid YouTube URL. Please enter a correct URL.');
             animateInput(youtubeUrlInput);
             return;
         }
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const videoId = extractVideoId(youtubeUrl);
             
             if (!videoId) {
-                throw new Error("Video ID alınamadı");
+                throw new Error("Could not obtain Video ID");
             }
             
             const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
@@ -74,8 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             videoInfo.innerHTML = `
-                <p><strong>Başlık:</strong> ${response.metadata.title}</p>
-                <p><strong>Kanal:</strong> ${response.metadata.author}</p>
+                <p><strong>Title:</strong> ${response.metadata.title}</p>
+                <p><strong>Channel:</strong> ${response.metadata.author}</p>
                 <p><strong>Video ID:</strong> ${videoId}</p>
                 <img src="${response.metadata.thumbnail}" alt="Video Thumbnail" loading="lazy">
             `;
@@ -83,21 +83,21 @@ document.addEventListener('DOMContentLoaded', function() {
             downloadLink.innerHTML = `
                 <a href="${response.download.url}" target="_blank" class="download-button">
                     <i class="${downloadType.value === 'audio' ? 'fas fa-music' : 'fas fa-video'}"></i>
-                    ${downloadType.value === 'audio' ? 'MP3' : 'MP4'} İndir 
+                    Download ${downloadType.value === 'audio' ? 'MP3' : 'MP4'} 
                     (${response.download.quality})
                 </a>
             `;
             
             result.style.display = 'block';
             
-            showNotification('success', 'Video bilgileri başarıyla alındı! İndirme butonuna tıklayabilirsiniz.');
+            showNotification('success', 'Video information successfully retrieved! You can click the download button.');
             
             setTimeout(() => {
                 result.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
         } catch (error) {
-            console.error('İndirme hatası:', error);
-            showNotification('error', 'Video indirilemedi: ' + error.message);
+            console.error('Download error:', error);
+            showNotification('error', 'Could not download video: ' + error.message);
         } finally {
             loader.style.display = 'none';
             downloadBtn.disabled = false;
