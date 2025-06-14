@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium YouTube İndirici</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="warning-banner">
+        <p>Bu servisi kullanmadan önce <a href="warning.html">yasal uyarıları</a> okuyup kabul etmeniz gerekmektedir.</p>
+    </div>
+    
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Premium YouTube İndirici</h1>
+            <p>YouTube videolarını saniyeler içinde MP3 ve MP4 formatında indirin</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-download"></i>
+                <h2>Video İndir</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="youtubeUrl">YouTube Video URL:</label>
+                <div class="input-wrapper">
+                    <i class="fab fa-youtube"></i>
+                    <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="downloadType">İndirme Tipi:</label>
+                <div class="select-wrapper">
+                    <select id="downloadType">
+                        <option value="audio">MP3 (Ses)</option>
+                        <option value="video">MP4 (Video)</option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            
+            <div class="form-group" id="audioQualityContainer">
+                <label for="audioQuality">Ses Kalitesi:</label>
+                <div class="select-wrapper">
+                    <select id="audioQuality">
+                        <option value="128">128 kbps</option>
+                        <option value="256">256 kbps</option>
+                        <option value="320">320 kbps (Premium)</option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            
+            <div class="form-group" id="videoQualityContainer" style="display:none">
+                <label for="videoQuality">Video Kalitesi:</label>
+                <div class="select-wrapper">
+                    <select id="videoQuality">
+                        <option value="360">360p</option>
+                        <option value="480">480p</option>
+                        <option value="720">720p (HD)</option>
+                        <option value="1080">1080p (Full HD)</option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            
+            <button id="downloadBtn" class="btn-download">
+                <i class="fas fa-download"></i> İndir
+            </button>
+            
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p>İşleniyor...</p>
+            </div>
+        </div>
+        
+        <div class="card" id="result">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i>
+                <h2>Video Bilgileri</h2>
+            </div>
+            
+            <div id="videoInfo" class="video-info"></div>
+            
+            <div id="downloadLink" class="download-section"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Bu hizmet sadece eğitim amaçlı olarak tasarlanmıştır.</p>
+        <p><a href="warning.html">Yasal Uyarılar</a></p>
+    </footer>
+
+    <!-- Kütüphaneler -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="youtube-downloader.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+        <div id="result">
+            <h3>Video Bilgileri</h3>
+            <div id="videoInfo"></div>
+            <div id="downloadLink" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <!-- Axios kütüphanesini dahil et -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <!-- YouTube İndirici kütüphanesini dahil et -->
+    <script src="youtube-downloader.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form elemanlarını seç
+            const downloadType = document.getElementById('downloadType');
+            const audioQualityContainer = document.getElementById('audioQualityContainer');
+            const videoQualityContainer = document.getElementById('videoQualityContainer');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('result');
+            const videoInfo = document.getElementById('videoInfo');
+            const downloadLink = document.getElementById('downloadLink');
+
+            // İndirme tipi değiştiğinde gösterilen kalite seçeneklerini güncelle
+            downloadType.addEventListener('change', function() {
+                if (this.value === 'audio') {
+                    audioQualityContainer.style.display = 'block';
+                    videoQualityContainer.style.display = 'none';
+                } else {
+                    audioQualityContainer.style.display = 'none';
+                    videoQualityContainer.style.display = 'block';
+                }
+            });
+
+            // İndirme butonuna tıklandığında
+            downloadBtn.addEventListener('click', async function() {
+                const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+                if (!youtubeUrl) {
+                    alert('Lütfen bir YouTube URL\'si girin.');
+                    return;
+                }
+
+                // Yükleniyor göstergesini göster
+                loader.style.display = 'block';
+                result.style.display = 'none';
+                downloadBtn.disabled = true;
+
+                try {
+                    let response;
+                    if (downloadType.value === 'audio') {
+                        const quality = document.getElementById('audioQuality').value;
+                        response = await window.YouTubeDownloader.ytmp3(youtubeUrl, quality);
+                    } else {
+                        const quality = document.getElementById('videoQuality').value;
+                        response = await window.YouTubeDownloader.ytmp4(youtubeUrl, quality);
+                    }
+
+                    if (response.status) {
+                        // Video bilgilerini göster
+                        videoInfo.innerHTML = `
+                            <p><strong>Başlık:</strong> ${response.metadata.title}</p>
+                            <p><strong>Kanal:</strong> ${response.metadata.author}</p>
+                            <img src="${response.metadata.thumbnail}" alt="Thumbnail" style="max-width: 100%;">
+                        `;
+
+                        // İndirme linkini göster
+                        downloadLink.innerHTML = `
+                            <a href="${response.download.url}" target="_blank" 
+                               class="download-button" 
+                               style="display:inline-block; background-color:#4CAF50; color:white; 
+                               padding:10px 20px; text-decoration:none; border-radius:4px;">
+                                ${downloadType.value === 'audio' ? 'MP3' : 'MP4'} İndir 
+                                (${response.download.quality})
+                            </a>
+                        `;
+                        
+                        result.style.display = 'block';
+                    } else {
+                        alert(`Hata: ${response.message}`);
+                    }
+                } catch (error) {
+                    console.error('İndirme hatası:', error);
+                    alert('Video indirilemedi. Lütfen tekrar deneyin.');
+                } finally {
+                    loader.style.display = 'none';
+                    downloadBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
