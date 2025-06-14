@@ -2,7 +2,7 @@
 
 Yo, this is straight fire! A Premium YouTube downloader that lets you grab vids and tunes without the hassle. No cap. 💯
 
-![YouTube Downloader Screenshot](https://i.imgur.com/example.png)
+![YouTube Downloader Screenshot](https://raw.githubusercontent.com/DeveloperKubilay/YoutubeDownloaderWebsite/refs/heads/main/image.png)
 
 ## 📱 What's This?
 This is the YouTube downloader web application. The main project repository is available at:
