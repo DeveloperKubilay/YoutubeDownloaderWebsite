@@ -5,10 +5,22 @@
     box-sizing: border-box;
 }
 
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+    --background-color: #f8f9fa;
+    --card-color: #ffffff;
+    --text-color: #333333;
+    --text-light: #777777;
+    --border-radius: 15px;
+    --shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
-    color: #333;
+    background: var(--background-color);
+    color: var(--text-color);
     line-height: 1.6;
     min-height: 100vh;
 }
@@ -31,79 +43,136 @@ body {
 
 /* Hero Bölümü */
 .hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     color: white;
     text-align: center;
-    padding: 60px 20px;
-    margin-bottom: 50px;
+    padding: 50px 20px; /* Reduced from 80px to 50px */
+    margin-bottom: 40px; /* Reduced from 60px to 40px */
     box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255, 255, 255, 0.05)" fill-opacity="1" d="M0,32L48,48C96,64,192,96,288,106.7C384,117,480,107,576,96C672,85,768,75,864,96C960,117,1056,171,1152,181.3C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+    background-size: cover;
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 1s ease-out;
 }
 
 .hero-content h1 {
-    font-size: 2.8rem;
+    font-size: 2.6rem; /* Reduced from 3.2rem */
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 10px; /* Reduced from 15px */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.hero-content h1 i {
+    margin-right: 10px;
+    color: #ff0000;
+}
+
 .hero-content p {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    max-width: 600px;
+    font-size: 1.1rem; /* Reduced from 1.3rem */
+    opacity: 0.95;
+    max-width: 600px; /* Reduced from 700px */
     margin: 0 auto;
+    font-weight: 300;
 }
 
 /* Ana İçerik */
 .container {
-    max-width: 900px;
-    margin: 0 auto 60px;
+    max-width: 1100px;
+    margin: 0 auto 80px;
     padding: 0 20px;
 }
 
 /* Kart Tasarımı */
 .card {
+    background: var(--card-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 40px;
+    margin-bottom: 40px;
+    transition: var(--transition);
+    animation: slideUp 0.8s ease-out;
+}
+
+.main-card {
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    padding: 30px;
-    margin-bottom: 30px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.main-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to bottom right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: var(--border-radius);
+    z-index: 0;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.result-card {
+    display: none;
 }
 
 .card-header {
     display: flex;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 15px;
+    padding-bottom: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .card-header i {
-    font-size: 24px;
-    color: #764ba2;
+    font-size: 28px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin-right: 15px;
 }
 
 .card-header h2 {
     font-weight: 600;
-    color: #333;
+    color: #444;
+    font-size: 1.8rem;
 }
 
 /* Form Elemanları */
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: 500;
-    color: #444;
+    color: #555;
+    font-size: 1.05rem;
 }
 
 .input-wrapper, .select-wrapper {
@@ -112,65 +181,90 @@ label {
 
 .input-wrapper i, .select-wrapper i {
     position: absolute;
-    left: 15px;
+    left: 20px;
     top: 50%;
     transform: translateY(-50%);
     color: #764ba2;
+    font-size: 18px;
 }
 
-.select-wrapper i.fa-chevron-down {
-    left: auto;
-    right: 15px;
+.arrow-icon {
+    left: auto !important;
+    right: 20px !important;
     pointer-events: none;
+    color: #999 !important;
 }
 
 input, select {
     width: 100%;
-    padding: 14px 15px 14px 45px;
-    border: 1px solid rgba(118, 75, 162, 0.3);
-    border-radius: 8px;
+    padding: 16px 20px 16px 50px;
+    border: 2px solid rgba(118, 75, 162, 0.2);
+    border-radius: 50px;
     font-family: 'Poppins', sans-serif;
     font-size: 16px;
-    transition: border 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
 }
 
 select {
     appearance: none;
-    background-color: white;
     cursor: pointer;
+    background-image: none;
+    padding-right: 50px;
 }
 
 input:focus, select:focus {
     outline: none;
     border-color: #764ba2;
-    box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.2);
+    box-shadow: 0 0 15px rgba(118, 75, 162, 0.15);
+    background-color: white;
 }
 
 /* Buton Stilleri */
 .btn-download {
     display: block;
     width: 100%;
-    background: linear-gradient(to right, #667eea, #764ba2);
+    background: var(--primary-gradient);
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 15px;
+    border-radius: 50px;
+    padding: 16px;
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(118, 75, 162, 0.3);
     text-align: center;
     font-family: 'Poppins', sans-serif;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .btn-download i {
     margin-right: 10px;
 }
 
+.btn-download:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+    z-index: -1;
+}
+
 .btn-download:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(118, 75, 162, 0.4);
+}
+
+.btn-download:hover:before {
+    left: 100%;
 }
 
 .btn-download:active {
@@ -186,9 +280,9 @@ input:focus, select:focus {
 
 .spinner {
     display: inline-block;
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(118, 75, 162, 0.2);
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(118, 75, 162, 0.1);
     border-radius: 50%;
     border-top-color: #764ba2;
     animation: spin 1s ease-in-out infinite;
@@ -200,78 +294,271 @@ input:focus, select:focus {
 }
 
 /* Sonuç Bölümü */
-#result {
-    display: none;
-}
-
 .video-info {
     margin-bottom: 25px;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .video-info p {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    font-size: 1.05rem;
 }
 
 .video-info img {
     max-width: 100%;
-    border-radius: 8px;
-    margin-top: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .download-section {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 30px;
+    animation: fadeIn 0.8s ease-out;
 }
 
 .download-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to right, #00b09b, #96c93d);
+    background: var(--secondary-gradient);
     color: white;
     text-decoration: none;
-    padding: 15px 30px;
-    border-radius: 8px;
+    padding: 16px 35px;
+    border-radius: 50px;
     font-weight: 600;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 176, 155, 0.3);
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 176, 155, 0.3);
+    position: relative;
+    overflow: hidden;
 }
 
 .download-button i {
     margin-right: 10px;
-    font-size: 18px;
+    font-size: 20px;
+}
+
+.download-button:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
 }
 
 .download-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 176, 155, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 176, 155, 0.4);
+}
+
+.download-button:hover:before {
+    left: 100%;
+}
+
+/* Özellikler Bölümü */
+.features-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.feature-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 30px;
+    flex: 1;
+    text-align: center;
+    min-width: 250px;
+    transition: var(--transition);
+    animation: fadeIn 1s ease-out;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.feature-card i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.feature-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.feature-card p {
+    color: var(--text-light);
 }
 
 /* Footer */
 footer {
-    text-align: center;
-    padding: 30px 20px;
-    background: #333;
+    background: #2d2d2d;
     color: white;
+    padding: 50px 20px;
+    text-align: center;
 }
 
-footer a {
-    color: #96c93d;
+.footer-content {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.footer-links {
+    margin-bottom: 20px;
+}
+
+.footer-links a {
+    color: #ccc;
     text-decoration: none;
+    margin: 0 15px;
+    font-weight: 500;
+    transition: color 0.3s;
 }
 
-footer a:hover {
-    text-decoration: underline;
+.footer-links a:hover {
+    color: #96c93d;
+}
+
+.separator {
+    color: #666;
+    margin: 0 5px;
+}
+
+.copyright {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+/* Notifikasyon Stilleri */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 350px;
+    max-width: calc(100vw - 40px);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    border-left: 4px solid #ff4b2b;
+}
+
+.notification.success {
+    border-left: 4px solid #00b09b;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+}
+
+.notification-content i {
+    margin-right: 12px;
+    font-size: 20px;
+}
+
+.notification.error i {
+    color: #ff4b2b;
+}
+
+.notification.success i {
+    color: #00b09b;
+}
+
+.notification-content p {
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.notification-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #777;
+}
+
+.disabled {
+    opacity: 0.7;
+    cursor: not-allowed !important;
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Responsive Düzen */
 @media (max-width: 768px) {
     .hero-content h1 {
-        font-size: 2rem;
+        font-size: 1.8rem; /* Reduced from 2.2rem */
+    }
+    
+    .hero-content p {
+        font-size: 0.95rem; /* Reduced from 1.1rem */
     }
     
     .card {
-        padding: 20px;
+        padding: 30px 20px;
     }
+    
+    .features-section {
+        flex-direction: column;
+    }
+    
+    .feature-card {
+        width: 100%;
+    }
+    
+    .btn-download, .download-button {
+        padding: 14px;
+        font-size: 1rem;
+    }
+    
+    input, select {
+        padding: 14px 20px 14px 50px;
+    }
+}
+
+/* Video kalite konteynerini başlangıçta gizle */
+#videoQualityContainer {
+    display: none;
 }
