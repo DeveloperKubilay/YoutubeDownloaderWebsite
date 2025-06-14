@@ -189,8 +189,8 @@ window.YouTubeDownloader = (function() {
             const response = await axios.get(`${API_BASE_URL}/info?id=${videoId}`);
             return response.data;
         } catch (error) {
-            console.error("Video bilgileri alınırken hata oluştu:", error);
-            throw new Error("Video bilgileri alınamadı");
+            console.error("Error while getting video information:", error);
+            throw new Error("Could not get video information");
         }
     }
     
@@ -202,7 +202,7 @@ window.YouTubeDownloader = (function() {
                 if (!videoId) {
                     return {
                         status: false,
-                        message: "Geçersiz YouTube URL'si"
+                        message: "Invalid YouTube URL"
                     };
                 }
                 
@@ -211,8 +211,8 @@ window.YouTubeDownloader = (function() {
                 return {
                     status: true,
                     metadata: {
-                        title: videoData.title || "Örnek Video Başlığı",
-                        author: videoData.author || "Örnek Kanal",
+                        title: videoData.title || "Sample Video Title",
+                        author: videoData.author || "Sample Channel",
                         thumbnail: videoData.thumbnail || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                         duration: videoData.duration || "3:45"
                     },
@@ -224,10 +224,10 @@ window.YouTubeDownloader = (function() {
                 };
                 
             } catch (error) {
-                console.error("MP3 indirme hatası:", error);
+                console.error("MP3 download error:", error);
                 return {
                     status: false,
-                    message: "MP3 indirme işlemi sırasında bir hata oluştu."
+                    message: "An error occurred during MP3 download process."
                 };
             }
         },
@@ -239,7 +239,7 @@ window.YouTubeDownloader = (function() {
                 if (!videoId) {
                     return {
                         status: false,
-                        message: "Geçersiz YouTube URL'si"
+                        message: "Invalid YouTube URL"
                     };
                 }
                 
@@ -257,8 +257,8 @@ window.YouTubeDownloader = (function() {
                 return {
                     status: true,
                     metadata: {
-                        title: videoData.title || "Örnek Video Başlığı",
-                        author: videoData.author || "Örnek Kanal",
+                        title: videoData.title || "Sample Video Title",
+                        author: videoData.author || "Sample Channel",
                         thumbnail: videoData.thumbnail || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                         duration: videoData.duration || "3:45"
                     },
@@ -270,10 +270,10 @@ window.YouTubeDownloader = (function() {
                 };
                 
             } catch (error) {
-                console.error("MP4 indirme hatası:", error);
+                console.error("MP4 download error:", error);
                 return {
                     status: false,
-                    message: "MP4 indirme işlemi sırasında bir hata oluştu."
+                    message: "An error occurred during MP4 download process."
                 };
             }
         }
