@@ -1,34 +1,16 @@
-// YouTube Video Downloader Browser Library
-
-// Constants
 const audio = [92, 128, 256, 320];
 const video = [144, 360, 480, 720, 1080];
 
-/**
- * YouTube video ID'sini URL'den çıkarır
- * @param {string} url - YouTube URL'si
- * @returns {string|null} - Video ID veya null
- */
 function getYouTubeVideoId(url) {
     const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|v\/|embed\/|user\/[^\/\n\s]+\/)?(?:watch\?v=|v%3D|embed%2F|video%2F)?|youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/|youtube\.com\/playlist\?list=)([a-zA-Z0-9_-]{11})/;
     const match = url.match(regex);
     return match ? match[1] : null;
 }
 
-/**
- * Hex değerini buffer'a dönüştürür
- * @param {string} hex - Hex değeri
- * @returns {Uint8Array} - Buffer
- */
 const hexcode = (hex) => {
     return new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 };
 
-/**
- * Şifrelenmiş metni çözer
- * @param {string} enc - Şifrelenmiş metin
- * @returns {Object} - Çözülmüş veri
- */
 async function decode(enc) {
     try {
         const secret_key = 'C5D58EF67A7584E4A29F6C35BBC4EB12';
@@ -37,7 +19,6 @@ async function decode(enc) {
         const content = data.slice(16);
         const key = hexcode(secret_key);
 
-        // Web Crypto API kullanarak çözme işlemi
         const cryptoKey = await window.crypto.subtle.importKey(
             'raw',
             key,
@@ -52,7 +33,6 @@ async function decode(enc) {
             content
         );
 
-        // ArrayBuffer'ı string'e dönüştür
         const decoder = new TextDecoder();
         return JSON.parse(decoder.decode(decrypted));
     } catch (error) {
@@ -60,20 +40,11 @@ async function decode(enc) {
     }
 }
 
-/**
- * SaveTube üzerinden video indirme URL'ini alır
- * @param {string} link - YouTube video linki
- * @param {number} quality - Kalite değeri
- * @param {string} value - İndirme tipi (audio/video)
- * @returns {Object} - İndirme bilgileri
- */
 async function savetube(link, quality, value) {
     try {
-        // Rastgele CDN al
         const cdnResponse = await axios.get("https://media.savetube.me/api/random-cdn");
         const cdn = cdnResponse.data.cdn;
         
-        // Video bilgilerini al
         const infoResponse = await axios.post('https://' + cdn + '/v2/info', {
             'url': link
         }, {
@@ -85,7 +56,6 @@ async function savetube(link, quality, value) {
         
         const info = await decode(infoResponse.data.data);
         
-        // İndirme bağlantısını al
         const downloadResponse = await axios.post('https://' + cdn + '/download', {
             'downloadType': value,
             'quality': `${quality}`,
@@ -114,14 +84,8 @@ async function savetube(link, quality, value) {
     }
 }
 
-/**
- * YouTube video metadata bilgilerini alır
- * @param {string} videoId - Video ID
- * @returns {Promise<Object>} - Video metadatası
- */
 async function getVideoMetadata(videoId) {
     try {
-        // YouTube oEmbed API'ını kullanarak basit metadata al
         const response = await axios.get(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
         
         return {
@@ -139,12 +103,6 @@ async function getVideoMetadata(videoId) {
     }
 }
 
-/**
- * YouTube videoyu MP3 formatında indir
- * @param {string} link - YouTube video linki
- * @param {number} formats - Ses kalitesi (kbps)
- * @returns {Promise<Object>} - İndirme bilgileri
- */
 async function ytmp3(link, formats = 128) {
     const videoId = getYouTubeVideoId(link);
     const format = audio.includes(Number(formats)) ? Number(formats) : 128;
@@ -181,12 +139,6 @@ async function ytmp3(link, formats = 128) {
     }
 }
 
-/**
- * YouTube videoyu MP4 formatında indir
- * @param {string} link - YouTube video linki
- * @param {number} formats - Video kalitesi (p)
- * @returns {Promise<Object>} - İndirme bilgileri
- */
 async function ytmp4(link, formats = 360) {
     const videoId = getYouTubeVideoId(link);
     const format = video.includes(Number(formats)) ? Number(formats) : 360;
@@ -223,24 +175,15 @@ async function ytmp4(link, formats = 360) {
     }
 }
 
-// Fonksiyonları global objede dışa aktar
-/**
- * YouTube İndirici API'si
- * Bu API, YouTube videolarını MP3 ve MP4 formatında indirmek için kullanılır.
- */
-
 window.YouTubeDownloader = (function() {
-    // API endpoint'leri
-    const API_BASE_URL = "https://api.example.com/youtube"; // Gerçek bir API URL'si ile değiştirilmeli
+    const API_BASE_URL = "https://api.example.com/youtube";
     
-    // Video ID çıkarma fonksiyonu
     function extractVideoId(url) {
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
         return (match && match[2].length === 11) ? match[2] : null;
     }
     
-    // YouTube API'sine istek gönderme
     async function fetchVideoData(videoId) {
         try {
             const response = await axios.get(`${API_BASE_URL}/info?id=${videoId}`);
@@ -252,12 +195,6 @@ window.YouTubeDownloader = (function() {
     }
     
     return {
-        /**
-         * YouTube videosunu MP3 formatında indir
-         * @param {string} url - YouTube video URL'si
-         * @param {string} quality - Ses kalitesi (128, 256, 320)
-         * @returns {Promise} İndirme bilgileri
-         */
         ytmp3: async function(url, quality) {
             try {
                 const videoId = extractVideoId(url);
@@ -269,13 +206,8 @@ window.YouTubeDownloader = (function() {
                     };
                 }
                 
-                // Gerçek API entegrasyonu burada yapılacak
-                // Şimdilik örnek veri döndürüyoruz
-                
-                // API'den video bilgilerini al
                 const videoData = await fetchVideoData(videoId);
                 
-                // Örnek dönüş verisi
                 return {
                     status: true,
                     metadata: {
@@ -300,12 +232,6 @@ window.YouTubeDownloader = (function() {
             }
         },
         
-        /**
-         * YouTube videosunu MP4 formatında indir
-         * @param {string} url - YouTube video URL'si
-         * @param {string} quality - Video kalitesi (360, 480, 720, 1080)
-         * @returns {Promise} İndirme bilgileri
-         */
         ytmp4: async function(url, quality) {
             try {
                 const videoId = extractVideoId(url);
@@ -317,13 +243,8 @@ window.YouTubeDownloader = (function() {
                     };
                 }
                 
-                // Gerçek API entegrasyonu burada yapılacak
-                // Şimdilik örnek veri döndürüyoruz
-                
-                // API'den video bilgilerini al
                 const videoData = await fetchVideoData(videoId);
                 
-                // Kaliteye göre çözünürlük
                 let resolution;
                 switch (quality) {
                     case "360": resolution = "360p"; break;
@@ -333,7 +254,6 @@ window.YouTubeDownloader = (function() {
                     default: resolution = "360p";
                 }
                 
-                // Örnek dönüş verisi
                 return {
                     status: true,
                     metadata: {

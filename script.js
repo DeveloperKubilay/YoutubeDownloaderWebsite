@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Form elemanlarını seç
     const downloadType = document.getElementById('downloadType');
     const audioQualityContainer = document.getElementById('audioQualityContainer');
     const videoQualityContainer = document.getElementById('videoQualityContainer');
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const downloadLink = document.getElementById('downloadLink');
     const youtubeUrlInput = document.getElementById('youtubeUrl');
 
-    // İndirme tipi değiştiğinde gösterilen kalite seçeneklerini güncelle
     downloadType.addEventListener('change', function() {
         if (this.value === 'audio') {
             audioQualityContainer.style.display = 'block';
@@ -21,14 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Enter tuşuna basıldığında indirmeyi başlat
     youtubeUrlInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             downloadBtn.click();
         }
     });
 
-    // İndirme butonuna tıklandığında
     downloadBtn.addEventListener('click', async function() {
         const youtubeUrl = youtubeUrlInput.value.trim();
         
@@ -38,14 +34,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // URL kontrolü
         if (!isValidYouTubeUrl(youtubeUrl)) {
             showNotification('error', 'Geçersiz YouTube URL\'si. Lütfen doğru bir URL girin.');
             animateInput(youtubeUrlInput);
             return;
         }
 
-        // Yükleniyor göstergesini göster
         loader.style.display = 'block';
         result.style.display = 'none';
         downloadBtn.disabled = true;
@@ -55,37 +49,30 @@ document.addEventListener('DOMContentLoaded', function() {
             let response;
             const videoId = extractVideoId(youtubeUrl);
             
-            // Video ID'yi kontrol et
             if (!videoId) {
                 throw new Error("Video ID alınamadı");
             }
             
-            // YouTube video thumbnail URL'ini oluştur
             const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
             
             if (downloadType.value === 'audio') {
                 const quality = document.getElementById('audioQuality').value;
                 
-                // YouTube Downloader API'sini kullan (youtube-downloader.js'den)
                 response = await ytmp3(youtubeUrl, quality);
                 
                 if (!response.status) {
-                    // Alternatif olarak varsayılan bir yanıt oluştur
                     response = createDummyResponse(youtubeUrl, videoId, quality, 'audio');
                 }
             } else {
                 const quality = document.getElementById('videoQuality').value;
                 
-                // YouTube Downloader API'sini kullan (youtube-downloader.js'den)
                 response = await ytmp4(youtubeUrl, quality);
                 
                 if (!response.status) {
-                    // Alternatif olarak varsayılan bir yanıt oluştur
                     response = createDummyResponse(youtubeUrl, videoId, quality, 'video');
                 }
             }
 
-            // Video bilgilerini göster
             videoInfo.innerHTML = `
                 <p><strong>Başlık:</strong> ${response.metadata.title}</p>
                 <p><strong>Kanal:</strong> ${response.metadata.author}</p>
@@ -93,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <img src="${response.metadata.thumbnail}" alt="Video Thumbnail" loading="lazy">
             `;
 
-            // İndirme linkini göster
             downloadLink.innerHTML = `
                 <a href="${response.download.url}" target="_blank" class="download-button">
                     <i class="${downloadType.value === 'audio' ? 'fas fa-music' : 'fas fa-video'}"></i>
@@ -102,13 +88,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </a>
             `;
             
-            // Sonuç kartını göster
             result.style.display = 'block';
             
-            // Başarılı bildirim göster
             showNotification('success', 'Video bilgileri başarıyla alındı! İndirme butonuna tıklayabilirsiniz.');
             
-            // Otomatik kaydırma
             setTimeout(() => {
                 result.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
@@ -122,22 +105,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // URL doğrulama fonksiyonu
     function isValidYouTubeUrl(url) {
         const regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[?&].*)?$/;
         return regExp.test(url);
     }
     
-    // YouTube video ID çıkarma fonksiyonu
     function extractVideoId(url) {
         const regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[?&].*)?$/;
         const match = url.match(regExp);
         return match ? match[1] : null;
     }
     
-    // Varsayılan yanıt oluşturma fonksiyonu (API başarısız olursa)
     function createDummyResponse(url, videoId, quality, type) {
-        // Video başlığını tahmin et
         const cleanUrl = url.replace(/https?:\/\/(www\.)?youtube\.com\/watch\?v=|https?:\/\/youtu\.be\//, '');
         const videoTitle = `YouTube Video (${cleanUrl})`;
         
@@ -159,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // Girişi animasyonla vurgulama
     function animateInput(inputElement) {
         inputElement.style.transition = 'border-color 0.3s';
         inputElement.style.borderColor = '#ff4b2b';
@@ -171,15 +149,12 @@ document.addEventListener('DOMContentLoaded', function() {
         inputElement.focus();
     }
     
-    // Bildirim gösterme fonksiyonu
     function showNotification(type, message) {
-        // Varsa önceki bildirimi kaldır
         const existingNotification = document.querySelector('.notification');
         if (existingNotification) {
             existingNotification.remove();
         }
         
-        // Yeni bildirim oluştur
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
@@ -192,12 +167,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.appendChild(notification);
         
-        // Bildirim animasyonu
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
         
-        // 5 saniye sonra kaldır
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -205,7 +178,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 5000);
         
-        // Kapatma butonuna tıklama
         notification.querySelector('.notification-close').addEventListener('click', () => {
             notification.classList.remove('show');
             setTimeout(() => {

@@ -166,7 +166,6 @@ body {
     animation: fadeUp 1.2s ease;
 }
 
-/* Animasyonlar */
 @keyframes fadeDown {
     0% {
         opacity: 0;
@@ -201,7 +200,6 @@ body {
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .container {
         padding: 30px 15px;
