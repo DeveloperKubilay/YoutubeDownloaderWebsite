@@ -224,7 +224,138 @@ async function ytmp4(link, formats = 360) {
 }
 
 // Fonksiyonları global objede dışa aktar
-window.YouTubeDownloader = {
-    ytmp3,
-    ytmp4
-};
+/**
+ * YouTube İndirici API'si
+ * Bu API, YouTube videolarını MP3 ve MP4 formatında indirmek için kullanılır.
+ */
+
+window.YouTubeDownloader = (function() {
+    // API endpoint'leri
+    const API_BASE_URL = "https://api.example.com/youtube"; // Gerçek bir API URL'si ile değiştirilmeli
+    
+    // Video ID çıkarma fonksiyonu
+    function extractVideoId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+    
+    // YouTube API'sine istek gönderme
+    async function fetchVideoData(videoId) {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/info?id=${videoId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Video bilgileri alınırken hata oluştu:", error);
+            throw new Error("Video bilgileri alınamadı");
+        }
+    }
+    
+    return {
+        /**
+         * YouTube videosunu MP3 formatında indir
+         * @param {string} url - YouTube video URL'si
+         * @param {string} quality - Ses kalitesi (128, 256, 320)
+         * @returns {Promise} İndirme bilgileri
+         */
+        ytmp3: async function(url, quality) {
+            try {
+                const videoId = extractVideoId(url);
+                
+                if (!videoId) {
+                    return {
+                        status: false,
+                        message: "Geçersiz YouTube URL'si"
+                    };
+                }
+                
+                // Gerçek API entegrasyonu burada yapılacak
+                // Şimdilik örnek veri döndürüyoruz
+                
+                // API'den video bilgilerini al
+                const videoData = await fetchVideoData(videoId);
+                
+                // Örnek dönüş verisi
+                return {
+                    status: true,
+                    metadata: {
+                        title: videoData.title || "Örnek Video Başlığı",
+                        author: videoData.author || "Örnek Kanal",
+                        thumbnail: videoData.thumbnail || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                        duration: videoData.duration || "3:45"
+                    },
+                    download: {
+                        url: `${API_BASE_URL}/download?id=${videoId}&format=mp3&quality=${quality}`,
+                        quality: `${quality} kbps`,
+                        size: videoData.size || "3.2 MB"
+                    }
+                };
+                
+            } catch (error) {
+                console.error("MP3 indirme hatası:", error);
+                return {
+                    status: false,
+                    message: "MP3 indirme işlemi sırasında bir hata oluştu."
+                };
+            }
+        },
+        
+        /**
+         * YouTube videosunu MP4 formatında indir
+         * @param {string} url - YouTube video URL'si
+         * @param {string} quality - Video kalitesi (360, 480, 720, 1080)
+         * @returns {Promise} İndirme bilgileri
+         */
+        ytmp4: async function(url, quality) {
+            try {
+                const videoId = extractVideoId(url);
+                
+                if (!videoId) {
+                    return {
+                        status: false,
+                        message: "Geçersiz YouTube URL'si"
+                    };
+                }
+                
+                // Gerçek API entegrasyonu burada yapılacak
+                // Şimdilik örnek veri döndürüyoruz
+                
+                // API'den video bilgilerini al
+                const videoData = await fetchVideoData(videoId);
+                
+                // Kaliteye göre çözünürlük
+                let resolution;
+                switch (quality) {
+                    case "360": resolution = "360p"; break;
+                    case "480": resolution = "480p"; break;
+                    case "720": resolution = "720p HD"; break;
+                    case "1080": resolution = "1080p Full HD"; break;
+                    default: resolution = "360p";
+                }
+                
+                // Örnek dönüş verisi
+                return {
+                    status: true,
+                    metadata: {
+                        title: videoData.title || "Örnek Video Başlığı",
+                        author: videoData.author || "Örnek Kanal",
+                        thumbnail: videoData.thumbnail || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                        duration: videoData.duration || "3:45"
+                    },
+                    download: {
+                        url: `${API_BASE_URL}/download?id=${videoId}&format=mp4&quality=${quality}`,
+                        quality: resolution,
+                        size: videoData.size || "24.8 MB"
+                    }
+                };
+                
+            } catch (error) {
+                console.error("MP4 indirme hatası:", error);
+                return {
+                    status: false,
+                    message: "MP4 indirme işlemi sırasında bir hata oluştu."
+                };
+            }
+        }
+    };
+})();
