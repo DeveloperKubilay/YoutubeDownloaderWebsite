@@ -2,3 +2,5 @@ node_modules/
 *.log
 *.mkv
 .env
+cookies.txt
+youtube-cookies.txt

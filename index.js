@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from "node:child_process";
 import { createServer } from "node:http";
-import { createReadStream } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { mkdir, mkdtemp, readdir, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, extname, join } from "node:path";
@@ -11,9 +11,11 @@ const PORT = Number(process.env.PORT || 3000);
 const INFO_TIMEOUT_MS = 45_000;
 const MAX_INFO_BYTES = 24 * 1024 * 1024;
 const DOWNLOAD_STARTED_COOKIE = "ytDownloadStarted";
+const YTDLP_REFERER = process.env.YTDLP_REFERER || "https://www.youtube.com/";
 
 const modes = new Set(["full", "audio", "video-only"]);
 const audioFormats = new Set(["m4a", "mp3"]);
+const ytdlpCookiesFile = prepareYtdlpCookiesFile();
 const videoEncoder = detectVideoEncoder();
 let processingQueue = Promise.resolve();
 
@@ -49,6 +51,7 @@ const server = createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`YT Stream hazır: http://localhost:${PORT}`);
   console.log(`Video encoder: ${videoEncoder.label}`);
+  console.log(`yt-dlp cookies: ${ytdlpCookiesFile ? "aktif" : "yok"}`);
 });
 
 async function sendHome(res) {
@@ -122,7 +125,7 @@ async function downloadProcessedFile(res, requestUrl) {
     console.error(error);
 
     if (!res.headersSent) {
-      sendText(res, 500, "İndirme işlenemedi. ffmpeg/yt-dlp çıktısını kontrol et.");
+      sendText(res, 500, userSafeDownloadError(error));
     } else {
       res.destroy(error);
     }
@@ -133,12 +136,7 @@ async function downloadProcessedFile(res, requestUrl) {
 
 function loadInfo(targetUrl) {
   return new Promise((resolve, reject) => {
-    const child = spawn("yt-dlp", [
-      "--dump-single-json",
-      "--no-playlist",
-      "--no-warnings",
-      targetUrl
-    ], {
+    const child = spawn("yt-dlp", buildYtdlpInfoArgs(targetUrl), {
       windowsHide: true,
       stdio: ["ignore", "pipe", "pipe"]
     });
@@ -192,10 +190,17 @@ function loadInfo(targetUrl) {
   });
 }
 
+function buildYtdlpInfoArgs(targetUrl) {
+  return [
+    ...buildYtdlpCommonArgs(),
+    "--dump-single-json",
+    targetUrl
+  ];
+}
+
 function buildYtdlpArgs(format, outputTemplate, targetUrl, mode) {
   const args = [
-    "--no-playlist",
-    "--no-warnings",
+    ...buildYtdlpCommonArgs(),
     "--no-progress",
     "-f",
     format
@@ -207,6 +212,78 @@ function buildYtdlpArgs(format, outputTemplate, targetUrl, mode) {
 
   args.push("-o", outputTemplate, targetUrl);
   return args;
+}
+
+function buildYtdlpCommonArgs() {
+  const args = [
+    "--no-playlist",
+    "--no-warnings",
+    "--referer",
+    YTDLP_REFERER,
+    "--add-header",
+    "Accept-Language:tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
+  ];
+
+  if (process.env.YTDLP_USER_AGENT) {
+    args.push("--user-agent", process.env.YTDLP_USER_AGENT);
+  }
+
+  if (ytdlpCookiesFile) {
+    args.push("--cookies", ytdlpCookiesFile);
+  }
+
+  return args;
+}
+
+function prepareYtdlpCookiesFile() {
+  const candidates = [
+    process.env.YTDLP_COOKIES_FILE,
+    process.env.YOUTUBE_COOKIES_FILE,
+    "/etc/secrets/youtube-cookies.txt",
+    "/etc/secrets/cookies.txt",
+    join(__dirname, "youtube-cookies.txt"),
+    join(__dirname, "cookies.txt")
+  ].filter(Boolean);
+
+  for (const filePath of candidates) {
+    try {
+      if (existsSync(filePath)) return filePath;
+    } catch {
+      // Ignore unreadable optional paths and fall back to the next source.
+    }
+  }
+
+  const rawCookies = process.env.YTDLP_COOKIES || process.env.YOUTUBE_COOKIES || "";
+  if (!rawCookies.trim()) return "";
+
+  try {
+    const cookieDir = join(tmpdir(), "yt-stream");
+    const cookieFile = join(cookieDir, "youtube-cookies.txt");
+    mkdirSync(cookieDir, { recursive: true });
+    writeFileSync(cookieFile, normalizeCookiesText(rawCookies), {
+      encoding: "utf8",
+      mode: 0o600
+    });
+    return cookieFile;
+  } catch (error) {
+    console.error(`yt-dlp cookie env dosyaya yazılamadı: ${error.message}`);
+    return "";
+  }
+}
+
+function normalizeCookiesText(value) {
+  let text = String(value || "")
+    .replace(/\\n/g, "\n")
+    .replace(/\\t/g, "\t")
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  const firstLine = text.split("\n", 1)[0] || "";
+  if (!/^# (HTTP|Netscape) Cookie File/i.test(firstLine)) {
+    text = `# Netscape HTTP Cookie File\n${text}`;
+  }
+
+  return `${text}\n`;
 }
 
 async function processWithFfmpeg(sourceFile, outputFile, mode, audioFormat, tempDir) {
@@ -769,5 +846,24 @@ function userSafeInfoError(error) {
     return "Video bilgileri zaman aşımına uğradı. Biraz sonra tekrar dene.";
   }
 
+  if (isYoutubeBotChallenge(message)) {
+    return "YouTube bu sunucu için oturum doğrulaması istiyor. Render'a youtube-cookies.txt secret file ekleyip tekrar deploy et.";
+  }
+
   return "Video bilgileri alınamadı. Linki kontrol edip tekrar dene.";
+}
+
+function userSafeDownloadError(error) {
+  const message = error instanceof Error ? error.message : "";
+
+  if (isYoutubeBotChallenge(message)) {
+    return "YouTube bu sunucu için oturum doğrulaması istiyor. Render'a youtube-cookies.txt secret file ekleyip tekrar deploy et.";
+  }
+
+  return "İndirme işlenemedi. ffmpeg/yt-dlp çıktısını kontrol et.";
+}
+
+function isYoutubeBotChallenge(message) {
+  return /sign in to confirm (you.?re|you're) not a bot/i.test(message)
+    || /use --cookies-from-browser or --cookies/i.test(message);
 }
