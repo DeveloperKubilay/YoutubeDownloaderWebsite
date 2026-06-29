@@ -1,0 +1,1 @@
+It lets you easily download videos and music from YouTube
